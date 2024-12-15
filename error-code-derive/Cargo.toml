@@ -1,0 +1,9 @@
+[package]
+name = "error-code-derive"
+version = "0.1.0"
+edition = "2021"
+authors = ["Paxon Qiao <qiaopengjun0@gmail.com>"]
+license = "MIT"
+
+
+[dependencies]
