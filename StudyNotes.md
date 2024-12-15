@@ -78,9 +78,11 @@ note: for more details see https://doc.rust-lang.org/cargo/reference/resolver.ht
    Compiling error-code-derive v0.1.0 (/Users/qiaopengjun/Code/rust/error-info/error-code-derive)
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.39s
 
-error-info on  master [?] via 🦀 1.83.0 via 🅒 base
-➜
+
 ➜ pre-commit install
+➜ cargo add darling --package error-code-derive
+➜ cargo expand --example error
+➜ cargo expand --example error
 ```
 
 ## 参考
