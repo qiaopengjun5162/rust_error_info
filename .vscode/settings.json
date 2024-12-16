@@ -4,6 +4,7 @@
     "Paxon",
     "postprocessors",
     "qiaopengjun",
+    "rustup",
     "thiserror"
   ]
 }

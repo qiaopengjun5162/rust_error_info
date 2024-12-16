@@ -1,5 +1,5 @@
 use darling::{
-    ast::{Data, Fields},
+    ast::{Data, Fields, Style},
     util, FromDeriveInput, FromVariant,
 };
 use proc_macro2::TokenStream;
@@ -48,17 +48,22 @@ pub(crate) fn process_error_info(input: DeriveInput) -> TokenStream {
         .map(|variant| {
             let EnumVariants {
                 ident,
-                fields: _,
+                fields,
                 code,
                 app_code,
                 client_msg,
             } = variant;
 
             let code = format!("{prefix}{code}");
+            let variant_code = match fields.style {
+                Style::Struct => quote! { #name::#ident { .. } },
+                Style::Tuple => quote! { #name::#ident(_) },
+                Style::Unit => quote! { #name::#ident },
+            };
 
             quote! {
-                #name::#ident(_) => {
-                    ErrorInfo::try_new(
+                #variant_code => {
+                    ErrorInfo::new(
                         #app_code,
                         #code,
                         #client_msg,
@@ -73,7 +78,7 @@ pub(crate) fn process_error_info(input: DeriveInput) -> TokenStream {
         impl #generics ToErrorInfo for #name #generics {
             type T = #app_type;
 
-            fn to_error_info(&self) -> Result<ErrorInfo<Self::T>, <Self::T as std::str::FromStr>::Err> {
+            fn to_error_info(&self) -> ErrorInfo<Self::T> {
                 match self {
                     #(#code),*
                 }
@@ -84,6 +89,8 @@ pub(crate) fn process_error_info(input: DeriveInput) -> TokenStream {
 
 #[cfg(test)]
 mod tests {
+    use quote::ToTokens;
+
     use super::*;
 
     #[test]
@@ -108,8 +115,18 @@ mod tests {
         let parsed = syn::parse_str(input).unwrap();
         let info = ErrorData::from_derive_input(&parsed).unwrap();
         println!("{:#?}", info);
+        assert_eq!(info.ident, "MyError");
+        assert_eq!(info.prefix, "01");
+        assert_eq!(
+            info.app_type.to_token_stream().to_string(),
+            "http :: StatusCode"
+        );
+        assert_eq!(info.generics.params.len(), 0);
+        assert!(info.generics.into_token_stream().is_empty());
+        assert!(info.data.is_enum());
 
         let code = process_error_info(parsed);
         println!("{}", code);
+        assert!(!code.is_empty());
     }
 }

@@ -82,7 +82,8 @@ note: for more details see https://doc.rust-lang.org/cargo/reference/resolver.ht
 ➜ pre-commit install
 ➜ cargo add darling --package error-code-derive
 ➜ cargo expand --example error
-➜ cargo expand --example error
+➜ RUST_LOG=info cargo run --example web
+➜ cargo add backtrace --dev -p error-code
 ```
 
 ## 参考
